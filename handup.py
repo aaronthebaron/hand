@@ -24,7 +24,11 @@ def query_db(query, args=(), one=False):
     return (rv[0] if rv else None) if one else rv
 
 def save_short_url():
-    url_row = query_db('insert into urls set long_url="?", short_code="?", date_added=?', [long_url, short_code, date_added], one=True)
+    url_row = query_db('INSERT INTO urls SET long_url="?", short_code="?", date_added=?', [long_url, short_code, date_added], one=True)
+    print(url_row)
+
+def record_click(short_code):
+    url_row = query_db('UPDATE urls SET click=click + 1 WHER short_code="?"', [short_code])
     print(url_row)
 
 
@@ -36,7 +40,7 @@ def shorten_url():
     if urlparse(long_url).scheme == '':
         return '{ "error": "invalid url" }'
 
-    url_row = query_db('select * from urls where long_url = ?', [long_url], one=True)
+    url_row = query_db('SELECT * FROM urls WHERE long_url = ?', [long_url], one=True)
     if url_row:
         json_dict = {
             'long_url': url_row['long_url'],
@@ -44,19 +48,37 @@ def shorten_url():
             'click': url_row['click'],
             'date_added': url_row['date_added']
         }
-        #Pass back short url
+        return json.dumps(json_dict)
+
+    short_code = ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(6))
+    date_added = time.time()
+    url_row = query_db('SELECT *FROM urls WHERE short_code = ?', [short_code], one=True)
+    while url_row:
+        short_code = ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(6))
+        url_row = query_db('SELECT * FROM urls WHERE short_code = ?', [], one=True)
+        
 
     json_dict = {
         'long_url': long_url,
-        'short_code': ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(6)),
+        'short_code': short_code,
         'click': None,
-        'date_added': time.time()
+        'date_added': date_added
     }
-    save_short_url()
+    save_short_url(long_url, short_code, date_added)
+
     return json.dumps(json_dict)
 
 @app.route('/')
-def index_page():
+@app.route('/<short_code>')
+def index_page(short_code=None):
+    if short_code:
+        url_row = query_db('SELECT * FROM urls WHERE long_url = ?', [long_url], one=True)
+        if url_row:
+            long_url = url_row['long_url']
+            record_click(short_code=short_code)
+
+            return redirect(long_url, code=302) 
+
     return render_template('index.html') 
 
 @app.teardown_appcontext
