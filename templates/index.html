@@ -1,10 +1,32 @@
-<html>
-<head>
-</head>
-<body>
-<form action="/shorten" method="post">
-    <input name="url" value=""/>
-    <button type="submit">Submit</button>
-</form>
-</body>
-</html>
+{% extends "wrapper.html" %}
+{% block body %}
+<div class="container" role="main">
+    <div class="jumbotron">
+        <h1 class="text-center">GetShorty.io</h1>
+        <div class="form-group has-feedback">
+            <form action="/shorten" method="post">
+                <div class="input-group input-group-lg">
+                    <span class="input-group-addon" id="sizing-addon1"><i class="glyphicon glyphicon-link"></i></span>
+                    <label for="inputUrl" class="sr-only">Paste a link to shorten it</label>
+                    <input type="text" id="inputUrl" name="url" class="form-control" placeholder="Paste a link to shorten it" aria-describedby="sizing-addon1" required autofocus>
+                    <span class="input-group-btn">
+                        <button class="btn btn-lg btn-primary" type="button" type="submit">Short!</button>
+                    </span>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <h2>Recently Shortened Links</h2>
+                <p>Foo</p>
+            </div>
+            <div class="col-md-8">
+            </div>
+        </div>
+
+        <hr>
+    </div>
+</div>
+{% endblock body %} 
