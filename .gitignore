@@ -3,7 +3,6 @@ bin/*
 *.pyc
 .DS_Store
 /.venv/
-/static/
 /.db
 /include
 *.swp
